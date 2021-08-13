@@ -34,10 +34,6 @@ public class ApplicationUser<set> implements UserDetails {
     @OneToMany(mappedBy = "applicationUser")
     private List<Post> posts;
 
-
-    @ManyToMany(mappedBy = "applicationUser")
-    private List<Post> posts;
-
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",
@@ -46,6 +42,15 @@ public class ApplicationUser<set> implements UserDetails {
             inverseJoinColumns = @JoinColumn(
                     name = "role_id" , referencedColumnName = "id"))
     private set<Role> roles = new HashSet<>();
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "UserRel",
+    joinColumns={@JoinColumn(name = "UserId")},
+    inverseJoinColumns={@JoinColumn(name = "parendId")});
+    private Set<ApplicationUser> following = new HashSet<>();
+
+    @ManyToMany(mappedBy = "following")
+    private Set<ApplicationUser> followers = new HashSet<>();
 
     public ApplicationUser(){}
 
@@ -56,6 +61,35 @@ public class ApplicationUser<set> implements UserDetails {
         this.lastName = lastName;
         this.bio = bio;
         this.dataOfBirth =  dataOfBirth;
+    }
+
+
+    public Set<ApplicationUser> getFollowers(){
+        return followers;
+    }
+
+    public void setFollowers(Set<ApplicationUser> followers) {
+        this.followers = followers;
+    }
+
+    public Set<ApplicationUser> getFollowing() {
+        return following;
+    }
+
+    public void setFollowing(Set<ApplicationUser> following) {
+        this.following = following;
+    }
+
+    public void addFollowing(ApplicationUser user){
+        this.following.add(user);
+    }
+
+    public void addFollower(ApplicationUser user){
+        this.followers.add(user);
+    }
+
+    public void deleteFollowing(ApplicationUser user){
+        this.following.remove(user);
     }
 
     public Set<Role> getRoles() {
@@ -72,12 +106,7 @@ public class ApplicationUser<set> implements UserDetails {
     public long getId() {
         return id;
     }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-
+    
     public void setPassword(String password) {
         this.password = password;
     }
