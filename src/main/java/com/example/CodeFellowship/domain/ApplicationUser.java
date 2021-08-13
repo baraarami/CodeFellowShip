@@ -15,7 +15,7 @@ import java.util.*;
 
 @Entity
 @JsonIgnoreProperties(value = { " posts "})
-public class ApplicationUser<set> implements UserDetails {
+public class ApplicationUser implements UserDetails {
     @Id
     @GeneratedValue( strategy = GenerationType.IDENTITY)
     private long id;
@@ -106,7 +106,7 @@ public class ApplicationUser<set> implements UserDetails {
     public long getId() {
         return id;
     }
-    
+
     public void setPassword(String password) {
         this.password = password;
     }
