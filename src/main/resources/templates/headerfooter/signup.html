@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{styles/reset.css}"
+          href="../static/styles/reset.css">
+    <link th:insert="navbar.html :: navbarStyle">
+    <link th:insert="footer.html :: footerStyle">
+    <link rel="stylesheet" th:href="@{/styles/signup.css}"
+          href="../static/styles/profile.css">
+    <title>Sign Up page</title>
+</head>
+<body>
+
+<nav th:replace="navbar.html :: header">
+</nav>
+
+<main>
+    <h3>Sign Up</h3>
+    <form method="post" th:action="@{/signup}">
+        <div><label for="username">Username<input id="username" name="username" type="text" required></label></div>
+        <div><label for="password">password<input id="password" name="password" type="password" required></label></div>
+        <div><label for="firstName">firstName<input id="firstName" name="firstName" type="text" required></label></div>
+        <div><label for="lastName">lastName<input id="lastName" name="lastName" type="text" required></label></div>
+        <div><label for="bio">Bio<input id="bio" name="bio" type="text"></label></div>
+        <div><label for="dateOfBirth">Username<input id="dateOfBirth" name="dateOfBirth" type="date" required></label></div>
+        <div><input type="submit" value="Submit"/></div>
+
+    </form>
+</main>
+<footer th:replace="footer.html :: footer"></footer>
+
+</body>
+</html>
