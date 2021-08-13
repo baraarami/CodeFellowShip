@@ -2,17 +2,20 @@ package com.example.CodeFellowship.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.apache.catalina.Role;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import sun.util.calendar.BaseCalendar;
 
 import javax.persistence.*;
 import javax.xml.crypto.Data;
-import java.util.Collection;
-import java.util.List;
+import java.sql.Date;
+import java.util.*;
 
 @Entity
 @JsonIgnoreProperties(value = { " posts "})
-public class ApplicationUser  implements UserDetails {
+public class ApplicationUser<set> implements UserDetails {
     @Id
     @GeneratedValue( strategy = GenerationType.IDENTITY)
     private long id;
@@ -26,24 +29,44 @@ public class ApplicationUser  implements UserDetails {
     private String firstName;
     private String lastName;
     private String bio ;
-    private Data dataOfBirth;
+    private Date dataOfBirth;
 
     @OneToMany(mappedBy = "applicationUser")
     private List<Post> posts;
 
+
+    @ManyToMany(mappedBy = "applicationUser")
+    private List<Post> posts;
+
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(
+                    name = "user_id" , referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(
+                    name = "role_id" , referencedColumnName = "id"))
+    private set<Role> roles = new HashSet<>();
+
     public ApplicationUser(){}
 
-    public ApplicationUser(String password, String username, String firstName, String lastName, String bio, Data dataOfBirth) {
+    public ApplicationUser(String password, String username, String firstName, String lastName, String bio, Date dataOfBirth) {
         this.password = password;
         this.username = username;
         this.firstName = firstName;
         this.lastName = lastName;
         this.bio = bio;
-        this.dataOfBirth = dataOfBirth;
+        this.dataOfBirth =  dataOfBirth;
     }
 
-    public ApplicationUser(String encode, String username, String firstName, String lastName, String bio, String dateOfBirth) {
+    public Set<Role> getRoles() {
+        return  roles;
+    }
 
+    public void setRoles(set<Role> roles) {
+        this.roles = roles;
+    }
+    public void setRole(Role newRole){
+        roles.add(newRole);
     }
 
     public long getId() {
@@ -107,7 +130,13 @@ public class ApplicationUser  implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities(){
-        return null;
+        Set<Role> roles = getRoles();
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+
+        for (Role role : roles){
+            authorities.add(new SimpleGrantedAuthority(role.getName()));
+        }
+        return authorities;
     }
 
     @Override

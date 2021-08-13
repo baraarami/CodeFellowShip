@@ -5,39 +5,45 @@ import com.example.CodeFellowship.domain.ApplicationUser;
 import com.example.CodeFellowship.domain.Post;
 import com.example.CodeFellowship.interfaces.ApplicationUserRepo;
 import com.example.CodeFellowship.interfaces.PostRepo;
+import com.example.CodeFellowship.interfaces.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.view.RedirectView;
 
+import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
 @Controller
 public class UserController {
+    @Autowired
+    UserService userService;
 
     @Autowired
-    ApplicationUserRepo applicationUserRepo;
+    BCryptPasswordEncoder encoder;
 
-    @Autowired
-    PostRepo postRepo;
 
-    @GetMapping("/profile")
-    public String getProfilepage(Model model){
+    @GetMapping("/myprofile")
+    public String getProfilepage(ModelMap model , HttpServletRequest request){
         UserDetails userDetails= (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        ApplicationUser applicationUser = applicationUserRepo.findApplicationUserByUsername(userDetails.getUsername());
+        ApplicationUser applicationUser = userService.findApplicationUserByUsername(userDetails.getUsername());
 
-        return profileDate(model , applicationUser , true);
+        return profileData(model , applicationUser , true , applicationUser.getId() , true);
     }
-    private String profileDate (Model model , ApplicationUser applicationUser
-     , boolean showPostForm){
+
+    private String profileData (ModelMap model , ApplicationUser applicationUser
+     , boolean isAuthorized , Long id , boolean showPostForm){
         SimpleDateFormat formatter2 = new SimpleDateFormat("yyyy-MM-dd");
 
         String formattedDate = formatter2.format(applicationUser.getDataOfBirth());
@@ -50,7 +56,7 @@ public class UserController {
         model.addAttribute("bio" , applicationUser.getBio());
         model.addAttribute("showPostForm" , showPostForm);
         model.addAttribute("posts" , posts);
-        model.addAttribute("id" , applicationUser.getId());
+        model.addAttribute("id" ,id);
 
 
         return "profile";
@@ -60,22 +66,32 @@ public class UserController {
 
     @GetMapping("users")
     public String getAllUsers(Model model){
-        List<ApplicationUser> users = applicationUserRepo.findAll();
+        List<ApplicationUser> users = userService.findAll();
         model.addAttribute("users " , users);
 
-        return "users";
+        return "users.html";
     }
 
     @GetMapping("/user/{id}")
-    public String getUserById(@PathVariable Long id , Model model){
-        ApplicationUser applicationUser= applicationUserRepo.findById(id).orElseThrow();
+    public String getUserById(@PathVariable Long id , ModelMap model){
+        ApplicationUser applicationUser= userService.findById(id);
 
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        ApplicationUser currentUser = applicationUserRepo.findApplicationUserByUsername(userDetails.getUsername());
+        ApplicationUser currentUser = userService.findApplicationUserByUsername(userDetails.getUsername());
 
-        boolean showPostForm;
-        showPostForm= applicationUser.getId().equals(currentUser.getId());
-        return profileDate(model , applicationUser , showPostForm);
+//        boolean showPostForm;
+//        showPostForm= applicationUser.getId().equals(currentUser.getId());
+//
+            Long passedId = applicationUser.getId();
+            boolean isAuthorized = applicationUser.getId().equals(currentUser.getId());
+            for (GrantedAuthority role : userDetails.getAuthorities()){
+                if (role.toString().equals("ADMIN" || applicationUser.getId().equals(currentUser.getId()))){
+                    isAuthorized = true;
+                    passedId=id;
+                }
+            }
+
+        return profileData(model , applicationUser , isAuthorized, passedId, false);
 
 
     }

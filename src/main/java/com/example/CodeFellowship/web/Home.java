@@ -9,6 +9,6 @@ public class Home {
 
     @GetMapping("/")
     public String homePage(){
-        return "index";
+        return "index.html";
     }
 }

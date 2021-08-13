@@ -3,6 +3,7 @@ package com.example.CodeFellowship.web;
 
 import com.example.CodeFellowship.domain.ApplicationUser;
 import com.example.CodeFellowship.interfaces.ApplicationUserRepo;
+import com.example.CodeFellowship.interfaces.services.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -24,16 +25,19 @@ public class AuthController {
     ApplicationUserRepo applicationUserRepo;
 
     @Autowired
+    SecurityService securityService;
+
+    @Autowired
     BCryptPasswordEncoder encoder;
 
     @GetMapping("/login")
     public String loginRoute(){
-        return "login";
+        return "login.html";
     }
 
     @GetMapping("/signup")
     public String getSignUpPage(){
-        return "signup";
+        return "signup.html";
     }
 
     @PostMapping("/signup")
@@ -46,12 +50,13 @@ public class AuthController {
         SimpleDateFormat formatter2 = new SimpleDateFormat("yyyy-MM-dd");
         Date date = formatter2.parse(dateOfBirth);
         System.out.println(date + "----------------------------------------------------------------------------");
-        ApplicationUser newApplicationUser = new ApplicationUser(encoder.encode(password) , username, firstName, lastName ,bio ,dateOfBirth);
+        ApplicationUser newApplicationUser = new ApplicationUser(encoder.encode(password) , username, firstName, lastName ,bio ,date);
+       newApplicationUser.setRole(securityService.findRoleByName("USER"));
         newApplicationUser = applicationUserRepo.save(newApplicationUser);
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(newApplicationUser , null , new ArrayList<>());
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return  new RedirectView("/");
+        return  new RedirectView("/myprofile");
     }
 
 }
