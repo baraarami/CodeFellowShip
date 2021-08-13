@@ -3,6 +3,8 @@ package com.example.CodeFellowship.domain;
 import org.springframework.security.core.parameters.P;
 
 import javax.persistence.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Entity
@@ -11,7 +13,9 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(columnDefinition = "TEXT")
     private String body;
+
     private Date date;
 
 
@@ -28,37 +32,37 @@ public class Post {
         this.applicationUser=applicationUser;
         this.date=new Date();
     }
+    public ApplicationUser getApplicationUser() {
+        return applicationUser;
+    }
 
+    public void setApplicationUser(ApplicationUser applicationUser){
+        this.applicationUser=applicationUser;
+    }
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getBody() {
+    public String getBody(){
         return body;
     }
-
-    public void setBody(String body) {
-        this.body = body;
+    public void setBody(String body){
+        this.body=body;
     }
 
     public Date getDate() {
         return date;
     }
 
+    public String getFormatedDate(){
+        DateFormat dateFormat= new SimpleDateFormat("yyyy-MM-dd");
+        return dateFormat.format(date);
+    }
     public void setDate(Date date) {
         this.date = date;
     }
 
-    public ApplicationUser getApplicationUser() {
-        return applicationUser;
-    }
 
-    public void setApplicationUser(ApplicationUser applicationUser) {
-        this.applicationUser = applicationUser;
-    }
+
 }
