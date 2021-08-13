@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>Login page</title>
+    <link rel="stylesheet" th:href="@{styles/reser.css}"
+    href="../static/styles/reset.css">
+    <link th:insert="headerfooter/navbar.html :: navbarStyle">
+    <link th:insert="headerfooter/footer.html :: footerStyle">
+    <link rel="stylesheet" th:href="@{/styles/form.css}"
+    href="../static/styles/form.css">
+
+</head>
+<body>
+<nav th:replace="headerfooter/navbar.html :: header"></nav>
+
+
+<main>
+    <h3>LogIn</h3>
+    <form th:action="@{/login}" method="post">
+        <div><label>User Name : <br><input type="text" name="username" required/></label></div>
+        <div><label>password : <br><input type="password" name="password" required/></label></div>
+        <div><input type="submit" value="Sign In"/></label></div>
+
+    </form>
+
+    <div th:if="${param.error}">
+        Invalid userName and password .
+    </div>
+
+    <div th:if="${param.logout}">
+        You Have Been Logged Out .
+    </div>
+</main>
+<footer th:replace="headerfooter/footer.html :: footer"></footer>
+
+</body>
+</html>
